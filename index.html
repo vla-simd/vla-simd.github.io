@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>When Is a CPU Enough for Language-Conditioned Manipulation?</title>
+<meta name="description" content="vla.simd, a CPU inference engine, and IMPACT, a language-conditioned action-chunking policy. Anonymous ICRA 2027 submission.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..700;1,400..600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..600&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --cardinal:#8C1515;
+  --impact:#175E54;          /* Palo Alto green: IMPACT, against cardinal for vla.simd */
+  --cardinal-dark:#820000;
+  --bright-red:#B1040E;
+  --sandstone:#D2C295;
+  --sand-light:#F9F6EF;
+  --cool-grey:#53565A;
+  --ink:#2E2D29;
+  --fog:#F4F4F4;
+  --fog-line:#E3E3E1;
+  --serif:"Source Serif 4","Source Serif Pro",Georgia,"Times New Roman",serif;
+  --sans:"Source Sans 3","Source Sans Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"Source Code Pro",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --col:880px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);
+     font-size:17px;line-height:1.66;-webkit-font-smoothing:antialiased}
+.bar{height:5px;background:var(--cardinal)}
+.wrap{max-width:var(--col);margin:0 auto;padding:0 24px}
+
+/* ---------------- hero ---------------- */
+header{text-align:center;padding:54px 0 0}
+.venue{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cardinal);margin:0 0 20px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(31px,4.7vw,47px);
+   line-height:1.14;letter-spacing:-.005em;margin:0 auto 26px;max-width:760px;color:var(--ink)}
+.punch{font-family:var(--serif);font-size:clamp(17px,2.1vw,20.5px);line-height:1.5;
+  color:var(--ink);margin:0 auto;max-width:640px;border-top:1px solid var(--fog-line);
+  border-bottom:1px solid var(--fog-line);padding:16px 0}
+.blind{font-size:13.5px;color:var(--cool-grey);margin:14px auto 0;max-width:54ch}
+
+.links{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin:30px 0 8px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;
+  padding:9px 20px;border-radius:999px;text-decoration:none;
+  background:var(--ink);color:#fff;border:1px solid var(--ink);
+  transition:background .15s,border-color .15s}
+.btn:hover{background:var(--cardinal);border-color:var(--cardinal)}
+.btn.soon{background:#fff;color:#8a8d90;border:1px solid var(--fog-line);cursor:default;pointer-events:none}
+.btn .ic{font-size:14px;line-height:1}
+
+/* ---------------- sections ---------------- */
+section{padding:46px 0 0}
+h2{font-family:var(--serif);font-weight:600;font-size:30px;text-align:center;
+   letter-spacing:-.005em;margin:0 0 6px;color:var(--ink)}
+h2 + .rule{width:56px;height:3px;background:var(--cardinal);margin:0 auto 26px;border-radius:2px}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;margin:38px 0 4px;color:var(--ink)}
+h3 .n{color:var(--cardinal);font-family:var(--sans);font-size:12.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:3px}
+p{margin:15px 0}
+a{color:var(--cardinal);text-decoration:none;border-bottom:1px solid rgba(140,21,21,.3)}
+a:hover{color:var(--bright-red);border-bottom-color:var(--bright-red)}
+code{font-family:var(--mono);font-size:.86em;color:var(--cardinal-dark);white-space:nowrap}
+.imp{color:var(--impact);font-weight:600;white-space:nowrap}
+.abstract{hyphens:auto}
+.subnote{font-size:15px;color:var(--cool-grey);margin-top:-2px}
+
+/* ---------------- figures ---------------- */
+figure{margin:26px 0 0;text-align:center}
+figure img{display:block;width:100%;height:auto;margin:0 auto}
+figcaption{font-size:15px;line-height:1.55;color:var(--cool-grey);margin-top:14px;
+  text-align:left;max-width:100%}
+figcaption b{color:var(--ink);font-weight:600;font-family:var(--serif)}
+
+/* ---------------- highlights ---------------- */
+.hl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:1px;background:var(--fog-line);border:1px solid var(--fog-line);margin:30px 0 0}
+.hl div{background:#fff;padding:19px 18px;text-align:center}
+.hl .v{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.05;color:var(--cardinal)}
+.hl .l{font-size:13.5px;line-height:1.45;color:var(--cool-grey);margin-top:7px}
+
+/* ---------------- video grid ---------------- */
+.grid{display:grid;gap:22px;margin-top:20px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g1{grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto}
+@media (max-width:760px){ .g3,.g2{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto} }
+
+.vid{display:flex;flex-direction:column}
+.ph{position:relative;aspect-ratio:4/3;background:var(--sand-light);
+    border:1px dashed var(--sandstone);display:flex;align-items:center;justify-content:center;
+    overflow:hidden}
+.ph video{display:none;width:100%;height:100%;object-fit:cover;background:#000}
+.ph.has-video{border-style:solid;border-color:var(--fog-line);background:#000;padding:0}
+.ph.has-video video{display:block}
+.ph.has-video .phin{display:none}
+.phin{text-align:center;padding:14px;width:100%}
+.phin .play{width:40px;height:40px;margin:0 auto 10px;border-radius:50%;
+  border:1.5px solid var(--sandstone);display:flex;align-items:center;justify-content:center}
+.phin .play::after{content:"";border-left:11px solid var(--sandstone);
+  border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.phin .lbl{font-size:11.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:#a89878;margin-bottom:6px}
+.phin .file{font-family:var(--mono);font-size:11px;color:#9a8c70;word-break:break-all;
+  line-height:1.45;display:block}
+
+.vmeta{padding-top:11px}
+.vmeta .top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#fff;background:var(--ink);padding:2.5px 8px;border-radius:3px;white-space:nowrap}
+.tag.ours{background:var(--impact)}
+.tag.ctl{background:#fff;color:var(--cool-grey);border:1px solid var(--fog-line)}
+.sr{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink);white-space:nowrap}
+.sr small{font-family:var(--sans);font-size:12px;font-weight:400;color:var(--cool-grey)}
+.instr{font-family:var(--serif);font-style:italic;font-size:16.5px;margin:7px 0 3px;color:var(--ink)}
+.vmeta .sub{font-size:13px;color:var(--cool-grey);line-height:1.5}
+
+.scene{background:var(--fog);border-left:3px solid var(--sandstone);
+  padding:13px 17px;font-size:15px;color:var(--cool-grey);margin:20px 0 0}
+.scene b{color:var(--ink);font-weight:600}
+
+/* ---------------- bibtex ---------------- */
+pre{background:var(--fog);border:1px solid var(--fog-line);padding:18px 20px;
+    overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;margin:22px 0 0}
+pre code{white-space:pre;color:var(--ink);font-size:inherit}
+
+footer{margin-top:58px;border-top:1px solid var(--fog-line);padding:24px 0 60px;
+  font-size:14px;color:var(--cool-grey);text-align:center}
+footer p{margin:6px 0}
+
+/* ---------------- SMK Tiling Algorithm mini-app ---------------- */
+.smk{border:1px solid var(--fog-line);margin-top:26px}
+.smk h4{font-family:var(--serif);font-size:15px;font-weight:600;margin:0 0 10px;color:var(--ink)}
+.smk-head{padding:16px 18px 4px;border-bottom:1px solid var(--fog-line);background:var(--fog)}
+.smk-targets{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px;padding-bottom:16px}
+.smk-target{text-align:left;background:#fff;border:1px solid var(--fog-line);padding:9px 11px;
+  cursor:pointer;font-family:var(--sans);font-size:13px;line-height:1.35;color:var(--ink)}
+.smk-target:hover{border-color:var(--sandstone)}
+.smk-target.on{border-color:var(--cardinal);box-shadow:inset 0 0 0 1px var(--cardinal)}
+.smk-target b{display:block;font-size:13.5px;font-weight:600}
+.smk-target span{display:block;color:var(--cool-grey);font-size:11.5px;margin-top:1px}
+.smk-b{display:inline-block;font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:1px 5px;margin-top:6px;border-radius:2px}
+.smk-b.paper{background:#f2e3e3;color:var(--cardinal)}
+.smk-b.dev{background:var(--sand-light);color:#8a7444}
+.smk-b.hypo{background:var(--fog);color:var(--cool-grey)}
+
+.smk-main{display:grid;grid-template-columns:206px 1fr}
+.smk-params{border-right:1px solid var(--fog-line);padding:16px 16px 18px}
+.smk-f{display:block;margin-bottom:9px}
+.smk-fl{display:block;font-size:12.5px;font-weight:600;color:var(--ink);font-family:var(--serif)}
+.smk-fl i{font-style:italic}
+.smk-f input,.smk-f select{width:100%;margin-top:2px;padding:4px 7px;border:1px solid var(--fog-line);
+  font-family:var(--mono);font-size:13px;color:var(--ink);background:#fff;border-radius:0}
+.smk-f input:focus,.smk-f select:focus{outline:2px solid var(--cardinal);outline-offset:-2px}
+.smk-fh{display:block;font-size:11px;color:var(--cool-grey);margin-top:2px;line-height:1.35}
+.smk-cands{padding:16px 18px 18px;min-width:0}
+.smk-cands table{border-collapse:collapse;width:100%;font-size:13px}
+.smk-cands thead th{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--cool-grey);text-align:left;padding:0 8px 6px 0;border-bottom:1px solid var(--fog-line)}
+.smk-cands thead th.smk-math{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:400;
+  font-family:var(--serif);color:var(--ink)}
+.smk-cands thead th.smk-math i{font-style:italic}
+.smk-cands tbody th{font-family:var(--mono);font-size:13px;font-weight:400;color:var(--cool-grey);
+  text-align:left;padding:8px 8px 8px 0;width:36px}
+.smk-cands td{padding:8px 8px 8px 0;border-bottom:1px solid #EFEFED;vertical-align:middle}
+.smk-cands tbody tr[data-key]{cursor:pointer}
+.smk-cands tbody tr[data-key]:hover td,.smk-cands tbody tr[data-key]:hover th{background:var(--fog)}
+.smk-cands tr.smk-win td,.smk-cands tr.smk-win th{background:#FBF3F3}
+.smk-cands tr.smk-sel td,.smk-cands tr.smk-sel th{box-shadow:inset 0 -2px 0 var(--sandstone)}
+.smk-crown{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:var(--cardinal);padding:1.5px 5px;margin-left:5px;border-radius:2px}
+.smk-skip{display:block;font-size:11px;color:var(--cool-grey);margin-top:2px}
+.smk-none td{color:var(--cool-grey);font-style:italic;font-size:12.5px}
+.smk-num{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.smk-bar{width:74px}
+.smk-bar span{display:block;height:7px;background:var(--sandstone)}
+.smk-win .smk-bar span{background:var(--cardinal)}
+
+.smk-budget{border-top:1px solid var(--fog-line);padding:16px 18px 18px;background:var(--fog)}
+.smk-bgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.smk-tile{display:inline-flex;flex-direction:column;gap:2px;padding:7px;background:#fff;border:1px solid var(--fog-line)}
+.smk-trow{display:flex;gap:2px}
+.smk-tile i,.smk-regs i,.smk-leg i{display:block;width:15px;height:15px;border-radius:2px}
+.smk-tile i.acc,.smk-regs i.acc,.smk-leg i.acc{background:var(--cardinal)}
+.smk-regs i.wt,.smk-leg i.wt{background:#C4AC72}
+.smk-regs i.op,.smk-leg i.op{background:var(--cool-grey)}
+.smk-regs i.free,.smk-leg i.free{background:#fff;border:1px dashed #C9C9C6}
+.smk-regs{display:grid;grid-template-columns:repeat(8,15px);gap:3px;padding:7px;background:#fff;
+  border:1px solid var(--fog-line);width:max-content}
+.smk-leg{list-style:none;padding:0;margin:11px 0 0;display:flex;flex-wrap:wrap;gap:6px 15px;
+  font-size:11.5px;color:var(--cool-grey)}
+.smk-leg li{display:flex;align-items:center;gap:6px}
+.smk-cap{font-size:11.5px;color:var(--cool-grey);line-height:1.5;margin:10px 0 0;max-width:38ch}
+.smk-checks{border-collapse:collapse;width:100%;margin-top:18px;font-size:12.5px}
+.smk-checks td{padding:6px 10px 6px 0;border-top:1px solid var(--fog-line);vertical-align:top}
+.smk-checks td:first-child{white-space:nowrap;color:var(--cool-grey);width:118px}
+.smk-checks td:last-child{width:20px;text-align:right}
+.smk-eq{font-family:var(--mono);font-size:12px;color:var(--ink);line-height:1.6}
+.smk-eq i,.smk-checks i{font-family:var(--serif);font-style:italic;font-size:13px}
+.smk-dim{color:var(--cool-grey)}
+.smk-ok{color:#1c7c3c;font-weight:700}
+.smk-no{color:var(--bright-red);font-weight:700}
+.smk-tog{font-family:var(--sans);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.smk-tog input{margin:0;accent-color:var(--cardinal)}
+
+.smk-foot{border-top:1px solid var(--fog-line);padding:14px 18px;display:flex;flex-wrap:wrap;
+  align-items:baseline;gap:8px 14px}
+.smk-verdict{font-size:14px;flex:1 1 320px;min-width:0}
+.smk-verdict b{font-family:var(--serif);font-size:17px;font-weight:600}
+.smk-vsub{display:block;font-family:var(--mono);font-size:11.5px;color:var(--cool-grey);margin-top:3px}
+.smk-vnote{display:block;font-size:12px;color:var(--cool-grey);line-height:1.5;margin-top:7px}
+.smk-match{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:#fff;background:#1c7c3c;padding:2px 6px;border-radius:2px;margin-left:4px}
+.smk-diff{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:#fff;background:var(--cool-grey);padding:2px 6px;border-radius:2px;margin-left:4px}
+.smk-reset{font:inherit;font-size:12px;color:var(--cardinal);background:none;border:0;
+  border-bottom:1px solid rgba(140,21,21,.35);padding:0;cursor:pointer}
+.smk-rank{display:flex;gap:0;border:1px solid var(--fog-line)}
+.smk-rank button{font-family:var(--sans);font-size:11.5px;padding:5px 10px;background:#fff;
+  border:0;cursor:pointer;color:var(--cool-grey)}
+.smk-rank button[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+@media (max-width:760px){
+  .smk-main{grid-template-columns:1fr}
+  .smk-params{border-right:0;border-bottom:1px solid var(--fog-line);
+    display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-content:start}
+  .smk-params .smk-f:last-child{grid-column:1/-1}
+  .smk-bgrid{grid-template-columns:1fr;gap:20px}
+  .smk-cands{padding:14px}
+  .smk-bar{width:48px}
+}
+
+@media (max-width:560px){
+  body{font-size:16px}
+  .wrap{padding:0 18px}
+  header{padding-top:40px}
+  h2{font-size:25px}
+}
+</style>
+</head>
+<body>
+
+<div class="bar"></div>
+
+<div class="wrap">
+
+<header>
+  <p class="venue">Anonymous submission &middot; ICRA 2027</p>
+  <h1>When Is a CPU Enough for<br>Language-Conditioned Manipulation?</h1>
+  <p class="punch">A language-conditioned manipulation policy that supplies actions faster than a
+  30&nbsp;Hz controller consumes them &mdash; on a Raspberry&nbsp;Pi&nbsp;5, CPU only.</p>
+  <p class="blind">Under review</p>
+
+  <nav class="links">
+    <a class="btn soon" href="#"><span class="ic">▣</span> Paper</a>
+    <a class="btn soon" href="#"><span class="ic">◨</span> Code</a>
+    <a class="btn" href="#smk"><span class="ic">◈</span> SMK Tiling Algorithm</a>
+    <a class="btn" href="#robot"><span class="ic">▶</span> Robot videos</a>
+    <a class="btn" href="#bibtex"><span class="ic">❞</span> BibTeX</a>
+  </nav>
+</header>
+
+<!-- ========================= SMK tiling algorithm ========================= -->
+<section id="smk" style="padding-top:34px">
+  <h2>Try it: choosing the SMK register tile</h2><div class="rule"></div>
+  <p style="text-align:center;color:var(--cool-grey);font-size:15.5px;max-width:66ch;margin:0 auto">
+    <code>vla.simd</code> runs every linear layer, convolution and attention projection through one
+    packed-panel SIMD micro-kernel, and picks its register tile per target. The paper’s SMK Tiling
+    Algorithm, running live: pick a target, edit its parameters, click any row to see the register budget.
+  </p>
+
+  <div class="smk" id="smk-app">
+    <div class="smk-head">
+      <div class="smk-targets" data-pane="targets"></div>
+    </div>
+
+    <div class="smk-main">
+      <div class="smk-params" data-pane="params"></div>
+      <div class="smk-cands" data-pane="table"></div>
+    </div>
+
+    <div class="smk-budget" data-pane="budget"></div>
+
+    <div class="smk-foot">
+      <div class="smk-verdict" data-pane="verdict"></div>
+      <div class="smk-rank" role="group" aria-label="Ranking key">
+        <button type="button" data-rank="phi" aria-pressed="true">rank by φ</button>
+        <button type="button" data-rank="issue" aria-pressed="false">by issue ratio</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============================== highlights ============================== -->
+<section id="highlights">
+
+  <div class="hl">
+    <div><div class="v">≈1.4×</div><div class="l">median speedup over compiled PyTorch</div></div>
+    <div><div class="v">41 Hz</div><div class="l"><span class="imp">IMPACT</span> action supply on a Raspberry&nbsp;Pi&nbsp;5</div></div>
+    <div><div class="v">76.4%</div><div class="l">LIBERO success, no robot pretraining</div></div>
+    <div><div class="v">≤2.6%</div><div class="l">of per-query compute spent on language</div></div>
+  </div>
+</section>
+
+<!-- ============================== abstract ============================== -->
+<section id="abstract">
+  <h2>Abstract</h2><div class="rule"></div>
+  <p class="abstract">We present <code>vla.simd</code>, a CPU inference engine for
+  language-conditioned manipulation policies, and <span class="imp">IMPACT</span>, an ACT-based policy that adds language
+  conditioning through cached text representations and visual modulation. <code>vla.simd</code> combines
+  shared SIMD micro-kernels, reusable computation and target-specific implementation choices, reaching a
+  median speedup of approximately 1.4× over compiled PyTorch references while maintaining numerical
+  fidelity. <span class="imp">IMPACT</span> encodes the instruction once per episode, spending an estimated at most 2.6% of
+  per-query compute on language conditioning, and is the only language-conditioned policy in our evaluated
+  set that supplies at least 30 actions per second on the Raspberry Pi&nbsp;5.</p>
+</section>
+
+<!-- ============================== method ============================== -->
+<section id="method">
+  <h2>Method</h2><div class="rule"></div>
+
+  <figure>
+    <img src="assets/vlasimd-simd.png" alt="Linear layers, convolutions via panel im2col and attention projections feeding a shared packed-panel SIMD micro-kernel.">
+    <figcaption><b><code>vla.simd</code>.</b> Linear layers, convolutions via panel im2col, and attention
+      projections share one packed-panel SIMD micro-kernel, whose register tile is selected per target
+      (6×16 on AVX2, 4×16 on NEON). Work is organised by lifetime: weights are packed once per process,
+      instruction-dependent tensors once per episode, and each query computes only observation-dependent
+      features.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="assets/vlasimd-impact.png" alt="IMPACT: a frozen T5-small encodes the instruction once per episode, giving tokens to the transformer and FiLM coefficients to a frozen ResNet-18.">
+    <figcaption><b class="imp">IMPACT.</b> A frozen T5-small encodes the instruction <em>once per episode</em>, providing
+      tokens for the transformer and FiLM coefficients for each stage of a frozen ResNet-18. Each query runs
+      the modulated backbone and encoder–decoder to predict a 50-step action chunk, for an estimated at most
+      2.6% of per-query compute spent on language conditioning.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="assets/speedup-bar.png" alt="Six bar panels showing control rate on four CPUs, with the torch.compile baseline and the rate added or lost by vla.simd.">
+    <figcaption><b>Action supply against compiled PyTorch.</b> Blue segments show the rate gained by
+      <code>vla.simd</code>, red segments a loss; the dashed line marks the 30&nbsp;Hz budget. On the Ryzen,
+      Octo-Small and SmolVLA cross that line with <code>vla.simd</code>.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================== real robot ============================== -->
+<section id="robot">
+  <h2>Real-robot experiments</h2><div class="rule"></div>
+  <p style="text-align:center;color:var(--cool-grey);font-size:15.5px;max-width:64ch;margin:0 auto">
+    Two embodiments, 13 conditions, 20 episodes each. Success rates and 95% confidence intervals are those
+    reported in the paper; latency is the mean query roundtrip on that bench.
+  </p>
+
+  <!-- ---------- A. SO-101 multi-task, IMPACT fp32 ---------- -->
+  <h3><span class="n">SO-101 &middot; A</span>Instruction following in a shared scene</h3>
+  <p class="subnote"><span class="imp">IMPACT</span>, fp32. The scene is fixed and holds both objects; only the instruction changes.</p>
+  <div class="grid g3">
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-tape-box.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-impact-tape-box.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT</span><span class="sr">90% <small>(70–97)</small></span></div>
+        <p class="instr">“Put the tape into the box”</p>
+        <div class="sub">multi-task checkpoint &middot; 996.6&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-tape-cup.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-impact-tape-cup.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT</span><span class="sr">85% <small>(64–95)</small></span></div>
+        <p class="instr">“Put the tape into the cup”</p>
+        <div class="sub">multi-task checkpoint &middot; 996.6&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-cup-box.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-impact-cup-box.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT</span><span class="sr">60% <small>(39–78)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">multi-task checkpoint &middot; 996.6&nbsp;ms</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="scene"><b>What to look for.</b> The first two instructions share a grasp target and differ only
+  in the destination; the third changes the object to be grasped. Destination selection is the stronger
+  effect on this bench.</div>
+
+  <!-- ---------- B. SO-101 int8 ---------- -->
+  <h3><span class="n">SO-101 &middot; B</span>The same policy quantized to int8</h3>
+  <p class="subnote"><span class="imp">IMPACT</span> with the W8A8 path, which meets the stricter time-aligned budget on the Pi&nbsp;5
+  and more than halves the query roundtrip.</p>
+  <div class="grid g3">
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-int8-tape-box.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-impact-int8-tape-box.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT int8</span><span class="sr">85% <small>(64–95)</small></span></div>
+        <p class="instr">“Put the tape into the box”</p>
+        <div class="sub">multi-task checkpoint &middot; 429.4&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-int8-tape-cup.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-impact-int8-tape-cup.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT int8</span><span class="sr">95% <small>(76–99)</small></span></div>
+        <p class="instr">“Put the tape into the cup”</p>
+        <div class="sub">multi-task checkpoint &middot; 429.4&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-int8-cup-box.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-impact-int8-cup-box.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT int8</span><span class="sr">50% <small>(30–70)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">multi-task checkpoint &middot; 429.4&nbsp;ms</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ---------- C. ACT control ---------- -->
+  <h3><span class="n">SO-101 &middot; C</span>No-language control</h3>
+  <p class="subnote">ACT at <span class="imp">IMPACT</span>'s configuration, with the text encoder, FiLM and instruction tokens
+  removed. One checkpoint sees all three instructions; three others see one each, which fixes the goal by
+  construction.</p>
+  <div class="grid g2">
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-multitask.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-act-multitask.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ctl">ACT — multi-task</span><span class="sr">20% <small>(8–42)</small></span></div>
+        <p class="instr">all three instructions, one checkpoint</p>
+        <div class="sub">915.0&nbsp;ms &middot; 45% of trials pursue the wrong object or release it between
+        two containers, which a fixed-goal checkpoint cannot do</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-single-tape-box.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-act-single-tape-box.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ctl">ACT — fixed goal</span><span class="sr">60% <small>(39–78)</small></span></div>
+        <p class="instr">“Put the tape into the box”</p>
+        <div class="sub">single-task checkpoint &middot; 915.0&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-single-tape-cup.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-act-single-tape-cup.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ctl">ACT — fixed goal</span><span class="sr">90% <small>(70–97)</small></span></div>
+        <p class="instr">“Put the tape into the cup”</p>
+        <div class="sub">single-task checkpoint &middot; 915.0&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-single-cup-box.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>so101-act-single-cup-box.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ctl">ACT — fixed goal</span><span class="sr">80% <small>(58–92)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">single-task checkpoint &middot; 915.0&nbsp;ms</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ---------- D. long horizon ---------- -->
+  <h3><span class="n">SO-101 &middot; D</span>Long-horizon drawer task</h3>
+  <p class="subnote">Open the drawer, place the tape inside, close it. Twenty demonstrations, a separate
+  checkpoint.</p>
+  <div class="grid g1">
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-drawer.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/so101-impact-drawer.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag ours">IMPACT</span><span class="sr">65% <small>(43–82)</small></span></div>
+        <p class="instr">“Put the tape into the drawer”</p>
+        <div class="sub">drawer checkpoint &middot; 996.6&nbsp;ms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- E. UR10e ---------- -->
+  <h3><span class="n">UR10e &middot; E</span>A second embodiment, served from two CPUs</h3>
+  <p class="subnote">A UR10e with a Robotiq gripper running SmolVLA under <code>vla.simd</code>. The mean
+  query roundtrip differs by 2.0× between hosts, but success does not: the intervals span 39–78%, so these
+  trials cannot resolve a host effect.</p>
+  <div class="grid g2">
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/ur10e-smolvla-m4.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>ur10e-smolvla-m4.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag">SmolVLA</span><span class="sr">60% <small>(39–78)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">served from an Apple&nbsp;M4 &middot; 685&nbsp;ms</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video muted loop playsinline controls preload="metadata" src="assets/videos/ur10e-smolvla-ryzen.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>ur10e-smolvla-ryzen.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag">SmolVLA</span><span class="sr">60% <small>(39–78)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">served from a Ryzen&nbsp;5&nbsp;5500 &middot; 1316&nbsp;ms</div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ============================== bibtex ============================== -->
+<section id="bibtex">
+  <h2>BibTeX</h2><div class="rule"></div>
+<pre><code>@inproceedings{anonymous2027cpu,
+  title     = {When Is a CPU Enough for Language-Conditioned Manipulation?},
+  author    = {Anonymous Authors},
+  booktitle = {Under review, IEEE International Conference on
+               Robotics and Automation (ICRA)},
+  year      = {2027},
+  note      = {Under double-blind review. Please do not
+               distribute author-identifying information.}
+}</code></pre>
+</section>
+
+<footer>
+  <p>This page accompanies an anonymous submission and withholds author, affiliation and repository
+  information.</p>
+  <p>Code and checkpoints will be released on acceptance.</p>
+</footer>
+
+</div>
+
+<script src="assets/smk-app.js" charset="utf-8"></script>
+<script>
+// A placeholder becomes a real player as soon as its .mp4 is dropped in.
+document.querySelectorAll('.ph video').forEach(function(v){
+  function ready(){ v.parentNode.classList.add('has-video'); }
+  if (v.readyState >= 1) ready();                 // already probed before this ran
+  v.addEventListener('loadedmetadata', ready);    // fires with preload="metadata"
+  v.addEventListener('loadeddata', ready);
+});
+</script>
+</body>
+</html>

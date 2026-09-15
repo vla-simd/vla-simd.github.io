@@ -1,0 +1,23 @@
+# Rollout videos are never committed.
+#
+# Two reasons, both hard blockers:
+#   1. Anonymity. The source .MOV files carry com.apple.quicktime.location.ISO6709
+#      (GPS), make/model and capture timestamps. Git history is permanent and public
+#      once pushed, so a single commit would de-anonymise the submission forever.
+#   2. Size. The raw clips are ~291 MB; GitHub warns past 50 MB per file, hard-blocks
+#      at 100 MB, and Pages sites are capped at 1 GB.
+#
+# Publish the transcoded, metadata-stripped .mp4 files by another route (a release
+# asset, an object store, or git-lfs on a separate repo) and drop them into
+# assets/videos/ at deploy time. See assets/videos/README.md for the filenames.
+assets/videos/*
+!assets/videos/.gitkeep
+!assets/videos/README.md
+
+# Local scratch
+_*.html
+*.synctex.gz
+
+# OS cruft
+.DS_Store
+Thumbs.db
