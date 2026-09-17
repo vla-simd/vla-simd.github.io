@@ -9,7 +9,7 @@ Anonymous project page for the ICRA 2027 submission. Static, no build step:
     index.html              the whole page (inline CSS, ~20 lines of JS)
     assets/smk-app.js       the SMK Tiling Algorithm simulator
     assets/*.png            figures rasterised from the paper's PDFs
-    assets/videos/          rollout videos — empty; see assets/videos/README.md
+    assets/videos/*.mp4     four rollout videos; see assets/videos/README.md
 
 ## Theme
 
@@ -61,13 +61,20 @@ Two things the app is careful about:
 
 To add a target, append to `PLATFORMS` at the top of `assets/smk-app.js`.
 
-## Robot video placeholders
+## Robot videos
 
-Thirteen slots, one per condition in the paper's two real-robot tables. Each is a `<video>`
-already pointing at its path, sitting behind placeholder art; a tiny script listens for
-`loadeddata` and swaps them. **Dropping the .mp4 in is the whole workflow** — no HTML edit.
-Filenames, instructions, latencies and success rates are listed in
+Four conditions are live, all IMPACT fp32 on the SO-101: three multi-task instructions and
+the long-horizon drawer task. Each card carries the policy tag, instruction, checkpoint,
+latency and the success rate with its CI.
+
+The other nine conditions from the paper's two real-robot tables had no footage, so their
+cards were removed from the page rather than left as placeholders. The placeholder
+mechanism still works for anything added later — a card upgrades itself when its file
+appears, no HTML edit. Filenames, and what to restore if more footage arrives, are in
 [assets/videos/README.md](assets/videos/README.md).
+
+The transcoded `.mp4` files are tracked (~11 MB, metadata-stripped and verified). The raw
+`.MOV` originals are not, and `.gitignore` explains why.
 
 ## Anonymity
 

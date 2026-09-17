@@ -1,18 +1,17 @@
-# Rollout videos are never committed.
+# Raw camera originals are never committed.
 #
-# Two reasons, both hard blockers:
-#   1. Anonymity. The source .MOV files carry com.apple.quicktime.location.ISO6709
-#      (GPS), make/model and capture timestamps. Git history is permanent and public
-#      once pushed, so a single commit would de-anonymise the submission forever.
-#   2. Size. The raw clips are ~291 MB; GitHub warns past 50 MB per file, hard-blocks
-#      at 100 MB, and Pages sites are capped at 1 GB.
+# The .MOV files straight off the phone carry com.apple.quicktime.location.ISO6709
+# (GPS), make/model and capture timestamps, and run ~291 MB. Git history is permanent
+# and public once pushed, so a single commit would de-anonymise the submission and
+# blow past GitHub's limits (50 MB warning, 100 MB hard block, 1 GB Pages cap).
 #
-# Publish the transcoded, metadata-stripped .mp4 files by another route (a release
-# asset, an object store, or git-lfs on a separate repo) and drop them into
-# assets/videos/ at deploy time. See assets/videos/README.md for the filenames.
-assets/videos/*
-!assets/videos/.gitkeep
-!assets/videos/README.md
+# The transcoded .mp4 files in assets/videos/ ARE tracked: the page needs them to
+# serve, they are ~11 MB in total, and ffprobe confirms no location, make, model or
+# software tags survive the transcode. Verify any new one before adding it:
+#     ffprobe -v error -show_entries format_tags -of default=nw=1 new.mp4
+assets/videos/*.MOV
+assets/videos/*.mov
+assets/videos/impact-multi-task/
 
 # Local scratch
 _*.html

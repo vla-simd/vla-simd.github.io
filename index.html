@@ -92,7 +92,7 @@ figcaption b{color:var(--ink);font-weight:600;font-family:var(--serif)}
 @media (max-width:760px){ .g3,.g2{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto} }
 
 .vid{display:flex;flex-direction:column}
-.ph{position:relative;aspect-ratio:4/3;background:var(--sand-light);
+.ph{position:relative;aspect-ratio:16/9;background:var(--sand-light);
     border:1px dashed var(--sandstone);display:flex;align-items:center;justify-content:center;
     overflow:hidden}
 .ph video{display:none;width:100%;height:100%;object-fit:cover;background:#000}
@@ -150,8 +150,10 @@ footer p{margin:6px 0}
 .smk-b.dev{background:var(--sand-light);color:#8a7444}
 .smk-b.hypo{background:var(--fog);color:var(--cool-grey)}
 
-.smk-main{display:grid;grid-template-columns:206px 1fr}
-.smk-params{border-right:1px solid var(--fog-line);padding:16px 16px 18px}
+.smk-main{display:grid;grid-template-columns:266px 1fr;border-top:1px solid var(--fog-line)}
+.smk-params{border-right:1px solid var(--fog-line);padding:16px 16px 18px;
+  display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-content:start}
+.smk-params .smk-f:last-child{grid-column:1/-1}
 .smk-f{display:block;margin-bottom:9px}
 .smk-fl{display:block;font-size:12.5px;font-weight:600;color:var(--ink);font-family:var(--serif)}
 .smk-fl i{font-style:italic}
@@ -182,7 +184,7 @@ footer p{margin:6px 0}
 .smk-bar span{display:block;height:7px;background:var(--sandstone)}
 .smk-win .smk-bar span{background:var(--cardinal)}
 
-.smk-budget{border-top:1px solid var(--fog-line);padding:16px 18px 18px;background:var(--fog)}
+.smk-budget{padding:16px 18px 18px;background:var(--fog)}
 .smk-bgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
 .smk-tile{display:inline-flex;flex-direction:column;gap:2px;padding:7px;background:#fff;border:1px solid var(--fog-line)}
 .smk-trow{display:flex;gap:2px}
@@ -228,9 +230,7 @@ footer p{margin:6px 0}
 
 @media (max-width:760px){
   .smk-main{grid-template-columns:1fr}
-  .smk-params{border-right:0;border-bottom:1px solid var(--fog-line);
-    display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-content:start}
-  .smk-params .smk-f:last-child{grid-column:1/-1}
+  .smk-params{border-right:0;border-bottom:1px solid var(--fog-line)}
   .smk-bgrid{grid-template-columns:1fr;gap:20px}
   .smk-cands{padding:14px}
   .smk-bar{width:48px}
@@ -280,12 +280,12 @@ footer p{margin:6px 0}
       <div class="smk-targets" data-pane="targets"></div>
     </div>
 
+    <div class="smk-budget" data-pane="budget"></div>
+
     <div class="smk-main">
       <div class="smk-params" data-pane="params"></div>
       <div class="smk-cands" data-pane="table"></div>
     </div>
-
-    <div class="smk-budget" data-pane="budget"></div>
 
     <div class="smk-foot">
       <div class="smk-verdict" data-pane="verdict"></div>
@@ -355,8 +355,8 @@ footer p{margin:6px 0}
 <section id="robot">
   <h2>Real-robot experiments</h2><div class="rule"></div>
   <p style="text-align:center;color:var(--cool-grey);font-size:15.5px;max-width:64ch;margin:0 auto">
-    Two embodiments, 13 conditions, 20 episodes each. Success rates and 95% confidence intervals are those
-    reported in the paper; latency is the mean query roundtrip on that bench.
+    Four conditions on an SO-101 arm, 20 episodes each. Success rates and 95% confidence intervals are
+    those reported in the paper; latency is the mean query roundtrip on that bench.
   </p>
 
   <!-- ---------- A. SO-101 multi-task, IMPACT fp32 ---------- -->
@@ -408,117 +408,8 @@ footer p{margin:6px 0}
   in the destination; the third changes the object to be grasped. Destination selection is the stronger
   effect on this bench.</div>
 
-  <!-- ---------- B. SO-101 int8 ---------- -->
-  <h3><span class="n">SO-101 &middot; B</span>The same policy quantized to int8</h3>
-  <p class="subnote"><span class="imp">IMPACT</span> with the W8A8 path, which meets the stricter time-aligned budget on the Pi&nbsp;5
-  and more than halves the query roundtrip.</p>
-  <div class="grid g3">
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-int8-tape-box.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-impact-int8-tape-box.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ours">IMPACT int8</span><span class="sr">85% <small>(64–95)</small></span></div>
-        <p class="instr">“Put the tape into the box”</p>
-        <div class="sub">multi-task checkpoint &middot; 429.4&nbsp;ms</div>
-      </div>
-    </div>
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-int8-tape-cup.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-impact-int8-tape-cup.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ours">IMPACT int8</span><span class="sr">95% <small>(76–99)</small></span></div>
-        <p class="instr">“Put the tape into the cup”</p>
-        <div class="sub">multi-task checkpoint &middot; 429.4&nbsp;ms</div>
-      </div>
-    </div>
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-impact-int8-cup-box.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-impact-int8-cup-box.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ours">IMPACT int8</span><span class="sr">50% <small>(30–70)</small></span></div>
-        <p class="instr">“Put the cup into the box”</p>
-        <div class="sub">multi-task checkpoint &middot; 429.4&nbsp;ms</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ---------- C. ACT control ---------- -->
-  <h3><span class="n">SO-101 &middot; C</span>No-language control</h3>
-  <p class="subnote">ACT at <span class="imp">IMPACT</span>'s configuration, with the text encoder, FiLM and instruction tokens
-  removed. One checkpoint sees all three instructions; three others see one each, which fixes the goal by
-  construction.</p>
-  <div class="grid g2">
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-multitask.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-act-multitask.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ctl">ACT — multi-task</span><span class="sr">20% <small>(8–42)</small></span></div>
-        <p class="instr">all three instructions, one checkpoint</p>
-        <div class="sub">915.0&nbsp;ms &middot; 45% of trials pursue the wrong object or release it between
-        two containers, which a fixed-goal checkpoint cannot do</div>
-      </div>
-    </div>
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-single-tape-box.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-act-single-tape-box.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ctl">ACT — fixed goal</span><span class="sr">60% <small>(39–78)</small></span></div>
-        <p class="instr">“Put the tape into the box”</p>
-        <div class="sub">single-task checkpoint &middot; 915.0&nbsp;ms</div>
-      </div>
-    </div>
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-single-tape-cup.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-act-single-tape-cup.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ctl">ACT — fixed goal</span><span class="sr">90% <small>(70–97)</small></span></div>
-        <p class="instr">“Put the tape into the cup”</p>
-        <div class="sub">single-task checkpoint &middot; 915.0&nbsp;ms</div>
-      </div>
-    </div>
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/so101-act-single-cup-box.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>so101-act-single-cup-box.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag ctl">ACT — fixed goal</span><span class="sr">80% <small>(58–92)</small></span></div>
-        <p class="instr">“Put the cup into the box”</p>
-        <div class="sub">single-task checkpoint &middot; 915.0&nbsp;ms</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ---------- D. long horizon ---------- -->
-  <h3><span class="n">SO-101 &middot; D</span>Long-horizon drawer task</h3>
+  <!-- ---------- B. long horizon ---------- -->
+  <h3><span class="n">SO-101 &middot; B</span>Long-horizon drawer task</h3>
   <p class="subnote">Open the drawer, place the tape inside, close it. Twenty demonstrations, a separate
   checkpoint.</p>
   <div class="grid g1">
@@ -534,41 +425,6 @@ footer p{margin:6px 0}
         <div class="sub">drawer checkpoint &middot; 996.6&nbsp;ms</div>
       </div>
     </div>
-  </div>
-
-  <!-- ---------- E. UR10e ---------- -->
-  <h3><span class="n">UR10e &middot; E</span>A second embodiment, served from two CPUs</h3>
-  <p class="subnote">A UR10e with a Robotiq gripper running SmolVLA under <code>vla.simd</code>. The mean
-  query roundtrip differs by 2.0× between hosts, but success does not: the intervals span 39–78%, so these
-  trials cannot resolve a host effect.</p>
-  <div class="grid g2">
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/ur10e-smolvla-m4.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>ur10e-smolvla-m4.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag">SmolVLA</span><span class="sr">60% <small>(39–78)</small></span></div>
-        <p class="instr">“Put the cup into the box”</p>
-        <div class="sub">served from an Apple&nbsp;M4 &middot; 685&nbsp;ms</div>
-      </div>
-    </div>
-
-    <div class="vid">
-      <div class="ph">
-        <video muted loop playsinline controls preload="metadata" src="assets/videos/ur10e-smolvla-ryzen.mp4"></video>
-        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
-          <span class="file">assets/videos/<br>ur10e-smolvla-ryzen.mp4</span></div>
-      </div>
-      <div class="vmeta">
-        <div class="top"><span class="tag">SmolVLA</span><span class="sr">60% <small>(39–78)</small></span></div>
-        <p class="instr">“Put the cup into the box”</p>
-        <div class="sub">served from a Ryzen&nbsp;5&nbsp;5500 &middot; 1316&nbsp;ms</div>
-      </div>
-    </div>
-
   </div>
 
 </section>
