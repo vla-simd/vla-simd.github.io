@@ -1,4 +1,4 @@
-# Project page — "When Is a CPU Enough for Language-Conditioned Manipulation?"
+# Project page — "vla.simd: Efficient CPU Inference for Language-Conditioned Manipulation"
 
 Anonymous project page for the ICRA 2027 submission. Static, no build step:
 
@@ -8,29 +8,43 @@ Anonymous project page for the ICRA 2027 submission. Static, no build step:
 
     index.html              the whole page (inline CSS, ~20 lines of JS)
     assets/smk-app.js       the SMK Tiling Algorithm simulator
+    assets/vla.simd.mp4     hero overview video (+ -poster.jpg)
     assets/*.png            figures rasterised from the paper's PDFs
-    assets/videos/*.mp4     four rollout videos; see assets/videos/README.md
+    assets/videos/*.mp4     four SO-101 rollout clips; see assets/videos/README.md
 
 ## Theme
 
-Stanford identity palette and typefaces, in the usual academic project-page structure
-(hero, teaser, abstract, method figures, videos, BibTeX). Light only — `color-scheme: light`
-is set so browsers do not auto-invert it.
+Follows [nerfies.github.io](https://nerfies.github.io/): Bulma's neutrals, Noto Sans /
+Google Sans throughout, dark rounded pill buttons, a 960px column and 10px radii.
 
-    Cardinal    #8C1515   heading rules, accents, links, `vla.simd`
-    Palo Alto   #175E54   IMPACT — the second accent, so the engine and the policy read apart
-    Bright red  #B1040E   link hover
-    Black       #2E2D29   body text, buttons, third-party policy tags
-    Sandstone   #D2C295   placeholder frames (#F9F6EF fill)
-    Cool grey   #53565A   captions, secondary text
-    Fog         #F4F4F4   code blocks, callouts
+    Dark        #363636   headings, buttons
+    Text        #4a4a4a   body
+    Muted       #7a7a7a   captions
+    Border      #dbdbdb   rules, card edges
+    Panel       #f5f5f5   stat tiles, callouts, code blocks
+    Link        #3273dc   links, app accents
 
-Two names are colour-coded throughout: `vla.simd` is cardinal and set in mono (the `code`
-rule), IMPACT is Palo Alto green and set in the body face (`.imp`, and `.tag.ours` on the
-video cards). Baselines — ACT, SmolVLA — stay neutral.
+One deliberate departure from nerfies, which has no second accent: two names stay
+colour-coded so the engine and the policy read apart.
 
-Fonts are Source Serif 4 (headings, instructions, numbers) and Source Sans 3 (body), pulled
-from Google Fonts with Georgia / system-sans fallbacks, so the page still renders offline.
+    Engine      #3D5A80   `vla.simd` — slate, always monospace so it never reads as a link
+    Policy      #0F766E   IMPACT — teal (`.imp`, and `.tag.ours` on the video cards)
+
+Baselines (ACT, SmolVLA) stay neutral. Light only; `color-scheme: light` stops browsers
+auto-inverting it.
+
+## Videos
+
+Five in total, all tracked in git.
+
+`assets/vla.simd.mp4` is the hero overview, placed after the link buttons the way nerfies
+places its teaser. It is 1:55 **with an audio track**, so it does not autoplay — browsers
+block autoplay with sound, and a two-minute clip should not loop. It gets controls and a
+poster frame (`assets/vla.simd-poster.jpg`, extracted with `ffmpeg -ss 2`).
+
+The four SO-101 rollout clips are silent and 8-22s, so they carry
+`autoplay muted loop playsinline` and play on load. See
+[assets/videos/README.md](assets/videos/README.md).
 
 ## SMK Tiling Algorithm mini-app
 
