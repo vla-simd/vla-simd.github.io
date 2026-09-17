@@ -7,6 +7,7 @@ Anonymous project page for the ICRA 2027 submission. Static, no build step:
 ## Layout
 
     index.html              the whole page (inline CSS, ~20 lines of JS)
+                            order: highlights, abstract, video, SMK demo, method, robot
     assets/smk-app.js       the SMK Tiling Algorithm simulator
     assets/vla.simd.mp4     hero overview video (+ -poster.jpg)
     assets/*.png            figures rasterised from the paper's PDFs
@@ -97,8 +98,10 @@ No author names, affiliations, institution, repository link or contact address;
 rasterised, so they carry no PDF metadata. Strip metadata from the videos too before
 publishing.
 
-To de-anonymise later, the places to edit are: `.venue`, `.authors`, `.affil`, `.blind`, the
-two `.btn.soon` buttons in `<nav class="links">`, the BibTeX block and the footer.
+The venue line, the "Under review" note and the BibTeX block have been removed, so the page
+no longer states that it is a blind submission — but it still carries no author, affiliation
+or repository information. To de-anonymise later, the places to edit are the two `.btn.soon`
+buttons in `<nav class="links">` and the footer.
 
 ## Adding the paper PDF
 

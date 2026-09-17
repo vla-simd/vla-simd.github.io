@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>vla.simd: Efficient CPU Inference for Language-Conditioned Manipulation</title>
-<meta name="description" content="vla.simd, a CPU inference engine, and IMPACT, a language-conditioned action-chunking policy that supplies 30+ actions per second on a Raspberry Pi 5. Anonymous ICRA 2027 submission.">
+<meta name="description" content="vla.simd, a CPU inference engine, and IMPACT, a language-conditioned action-chunking policy that supplies 30+ actions per second on a Raspberry Pi 5.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,12 +40,10 @@ body{margin:0;background:#fff;color:var(--body);font-family:var(--sans);
 
 /* ---------------- hero ---------------- */
 header{text-align:center;padding:3.5rem 0 0}
-.venue{font-size:14px;font-weight:700;color:#555;margin:0 0 1.2rem}
 h1{font-family:var(--sans);font-weight:600;font-size:clamp(2rem,4.4vw,3rem);line-height:1.15;
    letter-spacing:-.01em;color:var(--ink);margin:0 auto 1.4rem;max-width:880px}
 h1 .eng{font-family:var(--mono);font-size:.86em;color:var(--engine);letter-spacing:-.02em}
 .punch{font-size:1.25rem;line-height:1.5;color:var(--body);margin:0 auto 1rem;max-width:700px}
-.blind{font-size:1rem;font-weight:700;color:#555;margin:0}
 
 .links{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.6rem 0 0}
 .btn{display:inline-flex;align-items:center;gap:.5rem;font-size:1rem;font-weight:400;
@@ -56,7 +54,7 @@ h1 .eng{font-family:var(--mono);font-size:.86em;color:var(--engine);letter-spaci
 .btn .ic{font-size:.88em;line-height:1}
 
 /* hero video, nerfies teaser treatment */
-.teaser{margin:2.2rem 0 0}
+.teaser{margin:0}
 .teaser video{display:block;width:100%;height:auto;border-radius:var(--r);
   border:1px solid var(--line);background:#000}
 .teaser .cap{font-size:14px;color:var(--muted);margin:.7rem 0 0;text-align:center}
@@ -81,6 +79,8 @@ code{font-family:var(--mono);font-size:.88em;color:var(--engine);white-space:now
 /* ---------------- figures ---------------- */
 figure{margin:1.6rem 0 0;text-align:center}
 figure img{display:block;width:100%;height:auto;margin:0 auto;border-radius:var(--r)}
+figure.narrow img{max-width:620px}
+figure.narrow figcaption{max-width:620px;margin-left:auto;margin-right:auto}
 figcaption{font-size:14px;line-height:1.5;color:var(--muted);margin-top:.8rem;text-align:left}
 figcaption b{color:var(--ink);font-weight:600}
 
@@ -224,11 +224,6 @@ figcaption b{color:var(--ink);font-weight:600}
   border:0;cursor:pointer;color:var(--muted)}
 .smk-rank button[aria-pressed="true"]{background:var(--ink);color:#fff}
 
-/* ---------------- bibtex ---------------- */
-pre{background:var(--panel);border-radius:var(--r);padding:1.1rem 1.2rem;overflow-x:auto;
-    font-family:var(--mono);font-size:13px;line-height:1.6;margin:1.2rem 0 0;color:var(--ink)}
-pre code{white-space:pre;color:var(--ink);font-size:inherit}
-
 footer{margin-top:3.5rem;border-top:1px solid var(--line);padding:1.6rem 0 3.5rem;
   font-size:14px;color:var(--muted);text-align:center}
 footer p{margin:.4rem 0}
@@ -254,30 +249,57 @@ footer p{margin:.4rem 0}
 <div class="wrap">
 
 <header>
-  <p class="venue">Anonymous submission &middot; ICRA 2027</p>
   <h1><span class="eng">vla.simd</span>: Efficient CPU Inference for
   Language-Conditioned Manipulation</h1>
   <p class="punch">A language-conditioned manipulation policy that supplies actions faster than a
   30&nbsp;Hz controller consumes them &mdash; on a Raspberry&nbsp;Pi&nbsp;5, CPU only.</p>
-  <p class="blind">Under review</p>
 
   <nav class="links">
     <a class="btn soon" href="#"><span class="ic">▣</span> Paper</a>
     <a class="btn soon" href="#"><span class="ic">◨</span> Code</a>
     <a class="btn" href="#smk"><span class="ic">◈</span> SMK Tiling Algorithm</a>
     <a class="btn" href="#robot"><span class="ic">▶</span> Robot videos</a>
-    <a class="btn" href="#bibtex"><span class="ic">❞</span> BibTeX</a>
   </nav>
+</header>
 
+
+
+
+<!-- ============================== highlights ============================== -->
+<section id="highlights">
+
+  <div class="hl">
+    <div><div class="v">≈1.4×</div><div class="l">median speedup over compiled PyTorch</div></div>
+    <div><div class="v">41 Hz</div><div class="l"><span class="imp">IMPACT</span> action supply on a Raspberry&nbsp;Pi&nbsp;5</div></div>
+    <div><div class="v">76.4%</div><div class="l">LIBERO success, no robot pretraining</div></div>
+    <div><div class="v">≤2.6%</div><div class="l">of per-query compute spent on language</div></div>
+  </div>
+</section>
+
+<!-- ============================== abstract ============================== -->
+<section id="abstract">
+  <h2>Abstract</h2><div class="rule"></div>
+  <p class="abstract">We present <code>vla.simd</code>, a CPU inference engine for
+  language-conditioned manipulation policies, and <span class="imp">IMPACT</span>, an ACT-based policy that adds language
+  conditioning through cached text representations and visual modulation. <code>vla.simd</code> combines
+  shared SIMD micro-kernels, reusable computation and target-specific implementation choices, reaching a
+  median speedup of approximately 1.4× over compiled PyTorch references while maintaining numerical
+  fidelity. <span class="imp">IMPACT</span> encodes the instruction once per episode, spending an estimated at most 2.6% of
+  per-query compute on language conditioning, and is the only language-conditioned policy in our evaluated
+  set that supplies at least 30 actions per second on the Raspberry Pi&nbsp;5.</p>
+</section>
+
+<!-- ============================== overview video ============================== -->
+<section id="video">
   <div class="teaser">
     <video src="assets/vla.simd.mp4" poster="assets/vla.simd-poster.jpg"
            controls playsinline preload="metadata"></video>
     <p class="cap">Overview of <code>vla.simd</code> and <span class="imp">IMPACT</span> (1:55, with sound).</p>
   </div>
-</header>
+</section>
 
 <!-- ========================= SMK tiling algorithm ========================= -->
-<section id="smk" style="padding-top:34px">
+<section id="smk">
   <h2>Try it: choosing the SMK register tile</h2><div class="rule"></div>
   <p style="text-align:center;color:var(--cool-grey);font-size:15.5px;max-width:66ch;margin:0 auto">
     <code>vla.simd</code> runs every linear layer, convolution and attention projection through one
@@ -308,30 +330,6 @@ footer p{margin:.4rem 0}
 
 </section>
 
-<!-- ============================== highlights ============================== -->
-<section id="highlights">
-
-  <div class="hl">
-    <div><div class="v">≈1.4×</div><div class="l">median speedup over compiled PyTorch</div></div>
-    <div><div class="v">41 Hz</div><div class="l"><span class="imp">IMPACT</span> action supply on a Raspberry&nbsp;Pi&nbsp;5</div></div>
-    <div><div class="v">76.4%</div><div class="l">LIBERO success, no robot pretraining</div></div>
-    <div><div class="v">≤2.6%</div><div class="l">of per-query compute spent on language</div></div>
-  </div>
-</section>
-
-<!-- ============================== abstract ============================== -->
-<section id="abstract">
-  <h2>Abstract</h2><div class="rule"></div>
-  <p class="abstract">We present <code>vla.simd</code>, a CPU inference engine for
-  language-conditioned manipulation policies, and <span class="imp">IMPACT</span>, an ACT-based policy that adds language
-  conditioning through cached text representations and visual modulation. <code>vla.simd</code> combines
-  shared SIMD micro-kernels, reusable computation and target-specific implementation choices, reaching a
-  median speedup of approximately 1.4× over compiled PyTorch references while maintaining numerical
-  fidelity. <span class="imp">IMPACT</span> encodes the instruction once per episode, spending an estimated at most 2.6% of
-  per-query compute on language conditioning, and is the only language-conditioned policy in our evaluated
-  set that supplies at least 30 actions per second on the Raspberry Pi&nbsp;5.</p>
-</section>
-
 <!-- ============================== method ============================== -->
 <section id="method">
   <h2>Method</h2><div class="rule"></div>
@@ -345,7 +343,7 @@ footer p{margin:.4rem 0}
       features.</figcaption>
   </figure>
 
-  <figure>
+  <figure class="narrow">
     <img src="assets/vlasimd-impact.png" alt="IMPACT: a frozen T5-small encodes the instruction once per episode, giving tokens to the transformer and FiLM coefficients to a frozen ResNet-18.">
     <figcaption><b class="imp">IMPACT.</b> A frozen T5-small encodes the instruction <em>once per episode</em>, providing
       tokens for the transformer and FiLM coefficients for each stage of a frozen ResNet-18. Each query runs
@@ -439,24 +437,7 @@ footer p{margin:.4rem 0}
 
 </section>
 
-<!-- ============================== bibtex ============================== -->
-<section id="bibtex">
-  <h2>BibTeX</h2><div class="rule"></div>
-<pre><code>@inproceedings{anonymous2027cpu,
-  title     = {vla.simd: Efficient CPU Inference for
-               Language-Conditioned Manipulation},
-  author    = {Anonymous Authors},
-  booktitle = {Under review, IEEE International Conference on
-               Robotics and Automation (ICRA)},
-  year      = {2027},
-  note      = {Under double-blind review. Please do not
-               distribute author-identifying information.}
-}</code></pre>
-</section>
-
 <footer>
-  <p>This page accompanies an anonymous submission and withholds author, affiliation and repository
-  information.</p>
   <p>Code and checkpoints will be released on acceptance.</p>
 </footer>
 
