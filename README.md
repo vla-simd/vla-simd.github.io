@@ -41,7 +41,7 @@ Five in total, all tracked in git.
 `assets/vla.simd.mp4` is the hero overview, placed after the link buttons the way nerfies
 places its teaser. It is 1:55 **with an audio track**, so it does not autoplay — browsers
 block autoplay with sound, and a two-minute clip should not loop. It gets controls and a
-poster frame (`assets/vla.simd-poster.jpg`, extracted with `ffmpeg -ss 2`).
+poster frame (`assets/vla.simd-poster.jpg`, extracted with `ffmpeg -ss 5`).
 
 The four SO-101 rollout clips are silent and 8-22s, so they carry
 `autoplay muted loop playsinline` and play on load. See
