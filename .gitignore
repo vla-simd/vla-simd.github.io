@@ -11,6 +11,9 @@
 #     ffprobe -v error -show_entries format_tags -of default=nw=1 new.mp4
 assets/videos/*.MOV
 assets/videos/*.mov
+# Full-speed / wrist-view intermediates for the UR10e clips. Only the 3x side views
+# (ur10e-smolvla-*-3x.mp4) are on the page and tracked; these ~29 MB sources are not.
+assets/videos/ur-*.mp4
 assets/videos/impact-multi-task/
 
 # Local scratch

@@ -93,8 +93,9 @@ figcaption b{color:var(--ink);font-weight:600}
 /* ---------------- video grid ---------------- */
 .grid{display:grid;gap:1.2rem;margin-top:1.2rem}
 .g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
 .g1{grid-template-columns:1fr;max-width:640px;margin-left:auto;margin-right:auto}
-@media (max-width:760px){ .g3{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto} }
+@media (max-width:760px){ .g3,.g2{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto} }
 
 .vid{display:flex;flex-direction:column}
 .ph{position:relative;aspect-ratio:16/9;background:var(--panel);border:1px solid var(--line);
@@ -363,7 +364,7 @@ footer p{margin:.4rem 0}
 <section id="robot">
   <h2>Real-robot experiments</h2><div class="rule"></div>
   <p style="text-align:center;color:var(--cool-grey);font-size:15.5px;max-width:64ch;margin:0 auto">
-    Four conditions on an SO-101 arm, 20 episodes each. Success rates and 95% confidence intervals are
+    Six conditions across two embodiments, 20 episodes each. Success rates and 95% confidence intervals are
     those reported in the paper; latency is the mean query roundtrip on that bench.
   </p>
 
@@ -433,6 +434,41 @@ footer p{margin:.4rem 0}
         <div class="sub">drawer checkpoint &middot; 996.6&nbsp;ms</div>
       </div>
     </div>
+  </div>
+
+  <!-- ---------- C. UR10e ---------- -->
+  <h3><span class="n">UR10e &middot; C</span>A second embodiment, served from two CPUs</h3>
+  <p class="subnote">A UR10e with a Robotiq gripper running SmolVLA under <code>vla.simd</code>. The mean
+  query roundtrip differs by 2.0× between hosts, but success does not: both reach 12 of 20, and the
+  intervals span 39–78%, so these trials cannot resolve a host effect. Both clips play at 3× speed.</p>
+  <div class="grid g2">
+
+    <div class="vid">
+      <div class="ph">
+        <video autoplay muted loop playsinline controls preload="auto" src="assets/videos/ur10e-smolvla-m4-3x.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>ur10e-smolvla-m4-3x.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag">SmolVLA</span><span class="sr">60% <small>(39–78)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">served from an Apple&nbsp;M4 &middot; 1177&nbsp;ms &middot; 3× speed</div>
+      </div>
+    </div>
+
+    <div class="vid">
+      <div class="ph">
+        <video autoplay muted loop playsinline controls preload="auto" src="assets/videos/ur10e-smolvla-ryzen-3x.mp4"></video>
+        <div class="phin"><div class="play"></div><div class="lbl">Video placeholder</div>
+          <span class="file">assets/videos/<br>ur10e-smolvla-ryzen-3x.mp4</span></div>
+      </div>
+      <div class="vmeta">
+        <div class="top"><span class="tag">SmolVLA</span><span class="sr">60% <small>(39–78)</small></span></div>
+        <p class="instr">“Put the cup into the box”</p>
+        <div class="sub">served from a Ryzen&nbsp;5&nbsp;5500 &middot; 2343&nbsp;ms &middot; 3× speed</div>
+      </div>
+    </div>
+
   </div>
 
 </section>

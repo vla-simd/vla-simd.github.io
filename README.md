@@ -36,7 +36,7 @@ auto-inverting it.
 
 ## Videos
 
-Five in total, all tracked in git.
+Seven in total, all tracked in git.
 
 `assets/vla.simd.mp4` is the hero overview, placed after the link buttons the way nerfies
 places its teaser. It is 1:55 **with an audio track**, so it does not autoplay — browsers
@@ -78,17 +78,18 @@ To add a target, append to `PLATFORMS` at the top of `assets/smk-app.js`.
 
 ## Robot videos
 
-Four conditions are live, all IMPACT fp32 on the SO-101: three multi-task instructions and
-the long-horizon drawer task. Each card carries the policy tag, instruction, checkpoint,
-latency and the success rate with its CI.
+Six conditions are live. Four are IMPACT fp32 on the SO-101: three multi-task instructions and
+the long-horizon drawer task. The other two are SmolVLA on a UR10e with a Robotiq gripper,
+served from an Apple M4 and a Ryzen 5 5500, played at 3× speed. Each card carries the policy
+tag, instruction, checkpoint, latency and the success rate with its CI.
 
-The other nine conditions from the paper's two real-robot tables had no footage, so their
+The other seven conditions from the paper's two real-robot tables had no footage, so their
 cards were removed from the page rather than left as placeholders. The placeholder
 mechanism still works for anything added later — a card upgrades itself when its file
 appears, no HTML edit. Filenames, and what to restore if more footage arrives, are in
 [assets/videos/README.md](assets/videos/README.md).
 
-The transcoded `.mp4` files are tracked (~11 MB, metadata-stripped and verified). The raw
+The transcoded `.mp4` files are tracked (~13 MB, metadata-stripped and verified). The raw
 `.MOV` originals are not, and `.gitignore` explains why.
 
 ## Anonymity
