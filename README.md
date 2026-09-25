@@ -121,7 +121,7 @@ with
 
 Three rendered figures are kept on disk but no longer shown on the page: `budget.png` (the
 removed teaser), `vlasimd-so101.png` and `ur10e.png` (the removed bench photos). The page now
-shows `vlasimd-simd.png`, `vlasimd-impact.png` and `speedup-bar.png` only.
+shows `vlasimd-simd.gif`, `vlasimd-impact.png` and `speedup-bar.png` only.
 
 `budget.png` is the one figure with no standalone PDF — `figs/budget.tex` is pgfplots source —
 so it is cropped out of page 1 of the compiled paper:

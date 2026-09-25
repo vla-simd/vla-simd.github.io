@@ -339,7 +339,7 @@ footer p{margin:.4rem 0}
   <h2>Method</h2><div class="rule"></div>
 
   <figure>
-    <img src="assets/vlasimd-simd.png" alt="Linear layers, convolutions via panel im2col and attention projections feeding a shared packed-panel SIMD micro-kernel.">
+    <img src="assets/vlasimd-simd.gif" alt="Linear layers, convolutions via panel im2col and attention projections feeding a shared packed-panel SIMD micro-kernel.">
     <figcaption><b><code>vla.simd</code>.</b> Linear layers, convolutions via panel im2col, and attention
       projections share one packed-panel SIMD micro-kernel, whose register tile is selected per target
       (6×16 on AVX2, 4×16 on NEON). Work is organised by lifetime: weights are packed once per process,
